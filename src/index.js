@@ -1,23 +1,16 @@
 import 'babel-polyfill';
 import express from 'express';
 import dotenv from 'dotenv';
-import dbFactory from './db';
+
+import scaffoldMiddleware from './middleware';
+import scaffoldRoutes from './routes';
 
 dotenv.config();
-
-const db = dbFactory(process.env.DB_HOST);
+const { DB_HOST, PORT } = process.env;
 
 const app = express();
+scaffoldMiddleware(app, DB_HOST);
+scaffoldRoutes(app);
 
-app.get('/', async (req, res) => {
-  try {
-    await db.authenticate();
-    res.status(200).send('Successfully connected to db');
-  } catch (e) {
-    res.status(400).send('Error connecting to db');
-  }
-});
-
-const port = process.env.PORT || 7000;
-
-app.listen(port, () => console.log(`listening on port ${port}`));
+const port = PORT || 7000;
+app.listen(port, () => console.log(`Listening on port ${port}`));
